@@ -8,52 +8,50 @@ from pydub import AudioSegment
 # Streamlit Cloud uses the version installed via packages.txt automatically.
 
 async def synthesize_podcast(script: str, output_path: str = "data/briefing.mp3"):
-    """
-    Parses dialogue, assigns neural voices (Alex & Sam), 
-    and stitches a professional master track.
-    """
-    
-    # 1. Clean markdown and structural headers
+    # 1. Clean the text
     clean_script = re.sub(r'[#*]', '', script)
-    clean_script = clean_script.replace("PART 2: PODCAST SCRIPT", "").strip()
     
-    # 2. Parse dialogue segments
-    # Splitting by "Host A:" or "Host B:"
+    # 2. Split logic - using a more flexible regex for 'Host A' or 'Host B'
     raw_segments = re.split(r'(Host [A|B]):', clean_script)
+    
+    # DEBUG: See if the split actually worked
+    print(f"DEBUG: Found {len(raw_segments)//2} dialogue segments.")
     
     combined_audio = AudioSegment.empty()
     temp_files = []
 
-    # Ensure data directory exists for temp files
-    if not os.path.exists("data"):
-        os.makedirs("data")
+    if not os.path.exists("data"): os.makedirs("data")
 
-    # 3. Voice Orchestration
+    # 3. Process segments
     for i in range(1, len(raw_segments), 2):
         label = raw_segments[i].strip()
-        text_to_speak = raw_segments[i+1].strip()
+        text = raw_segments[i+1].strip().replace("Alex:", "").replace("Sam:", "")
         
-        if not text_to_speak: continue
+        if len(text) < 2: continue # Skip empty lines
 
-        # Identity Assignment: Host A = Alex (Male), Host B = Sam (Female)
         voice = "en-US-AndrewNeural" if "A" in label else "en-US-AvaNeural"
-        
         temp_file = f"data/temp_{i}.mp3"
         
-        # Synthesize ONLY the dialogue
-        communicate = edge_tts.Communicate(text_to_speak, voice, rate="+10%")
+        # Save clip
+        communicate = edge_tts.Communicate(text, voice, rate="+10%")
         await communicate.save(temp_file)
         
-        # Stitch with natural conversational pacing
-        segment_audio = AudioSegment.from_mp3(temp_file)
-        combined_audio += segment_audio + AudioSegment.silent(duration=450)
-        temp_files.append(temp_file)
+        # Stitch
+        if os.path.exists(temp_file) and os.path.getsize(temp_file) > 0:
+            segment_audio = AudioSegment.from_mp3(temp_file)
+            combined_audio += segment_audio + AudioSegment.silent(duration=500)
+            temp_files.append(temp_file)
 
-    # 4. Final Master Export
+    # 4. Fallback: If for some reason it's still 0s, add a tiny bit of silence 
+    # so the export doesn't create a 'broken' 0-byte file.
+    if len(combined_audio) == 0:
+        print("WARNING: No audio was generated. Check if 'Host A:' exists in script.")
+        combined_audio = AudioSegment.silent(duration=1000)
+
     combined_audio.export(output_path, format="mp3")
     
-    # Clean up temp assets
     for f in temp_files: 
-        if os.path.exists(f): os.remove(f)
+        try: os.remove(f)
+        except: pass
             
     return output_path
