@@ -25,6 +25,8 @@ class BriefingAgent:
     def extract_text(self, pdf_input) -> str:
         # Handle library paths (strings) vs manual uploads (objects)
         if isinstance(pdf_input, str):
+            if not os.path.exists(pdf_input):
+                raise FileNotFoundError(f"Missing library file: {pdf_input}. Please ensure the 'library' folder is pushed to GitHub.")
             with open(pdf_input, 'rb') as f:
                 reader = pypdf.PdfReader(f)
                 return self._process_reader(reader)
