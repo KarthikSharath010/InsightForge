@@ -1,0 +1,22 @@
+# Virtual Environment
+venv/
+.venv/
+env/
+
+# Python caching
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Streamlit
+.streamlit/
+static/
+
+# Data and Audio (We don't want to push massive PDFs or MP3s)
+data/*.mp3
+data/*.pdf
+*.pdf
+*.mp3
+
+# Security: Never push your API keys!
+.env
