@@ -2,6 +2,8 @@
 venv/
 .venv/
 env/
+ffmpeg.exe
+ffprobe.exe
 
 # Python caching
 __pycache__/
