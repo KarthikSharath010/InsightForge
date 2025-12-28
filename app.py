@@ -7,10 +7,16 @@ from core.audio import synthesize_podcast
 # Consolidated CSS for Perfect Header Alignment
 st.markdown("""
     <style>
-    /* 1. Nuke all default Streamlit headers and reclaim top-of-page pixels */
-    header { visibility: hidden; height: 0px !important; }
-    [data-testid="stHeader"] { height: 0px !important; }
-    
+    /* 1. Reset Streamlit headers to allow sidebar toggle but keep it clean */
+    header { visibility: visible !important; background: transparent !important; }
+    [data-testid="stHeader"] { 
+        background-color: transparent !important; 
+        border-bottom: none !important;
+        z-index: 999 !important;
+    }
+    [data-testid="stDecoration"] { display: none !important; } 
+    /* Remove the height forcing so buttons are clickable, but we can make it minimal */
+
     /* 2. Absolute reset of the main container */
     .block-container {
         padding-top: 0rem !important;
