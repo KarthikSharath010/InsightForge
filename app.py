@@ -113,7 +113,7 @@ if not os.path.exists("data"):
 
 # --- Page Configuration ---
 st.set_page_config(
-    page_title="Intel-Stream | Executive AI Briefing", 
+    page_title="InsightForge | Executive AI Briefing", 
     page_icon="🎙️",
     layout="wide"
 )
@@ -137,7 +137,7 @@ if "audio_path" not in st.session_state:
 
 # --- Sidebar ---
 with st.sidebar:
-    st.title("🎙️ Intel-Stream")
+    st.title("🎙️ InsightForge")
     st.subheader("Intelligence Scenario")
     
     scenarios = {
