@@ -9,30 +9,33 @@ class BriefingAgent:
 
     def extract_text(self, pdf_file) -> str:
         reader = pypdf.PdfReader(pdf_file)
+        # Selective extraction for speed/token efficiency
+        num_pages = len(reader.pages)
+        if num_pages > 50:
+            pages = list(range(0, 40)) + list(range(num_pages-10, num_pages))
+            return "".join([reader.pages[i].extract_text() for i in pages if reader.pages[i].extract_text()])
         return " ".join([p.extract_text() for p in reader.pages if p.extract_text()])
 
     def analyze_and_script_stream(self, raw_text: str, brand: str):
         prompt = f"""
         You are a Senior Strategic Analyst at Kasparro. 
-        Your task: Audit '{brand}' by benchmarking them against the data in the provided PDF.
+        Audit the brand '{brand}' against the benchmark data in the provided PDF.
 
-        BENCHMARK DATA (The PDF Context):
+        BENCHMARK DATA:
         {raw_text[:250000]}
 
-        INSTRUCTIONS:
         PART 1: EXECUTIVE SUMMARY
-        - Provide a high-level summary of the strategic gaps for '{brand}'.
-        - Use professional headers. DO NOT use 'Part 1' or 'Summary'.
-        - If '{brand}' is not in the PDF, explain what they must do to counter the momentum of the brands that ARE in the PDF.
+        - Highlight 3 critical gaps where '{brand}' must adapt to match the benchmark trends.
+        - Use professional headers. DO NOT use 'Part 1'.
 
         ---SEPARATOR---
 
         PART 2: PODCAST SCRIPT
-        Create a 2-person dialogue between 'Alex' (Host A) and 'Emma' (Host B).
-        - Use labels 'Host A:' and 'Host B:' ONLY for the engine.
-        - The hosts MUST call each other 'Alex' and 'Emma'.
-        - They MUST NEVER say the words "Host A" or "Host B".
-        - They are discussing how '{brand}' can survive or beat the strategies found in the PDF.
-        - NO markdown symbols like # or * in the dialogue.
+        Roleplay as 'Alex' (Host A) and 'Emma' (Host B).
+        - Use labels 'Host A:' and 'Host B:'.
+        - Hosts MUST call each other Alex and Emma.
+        - NEVER say "Host A" or "Host B".
+        - Discuss how '{brand}' is failing or succeeding compared to the PDF data.
+        - NO markdown (# or *).
         """
         return self.model.generate_content(prompt, stream=True)
