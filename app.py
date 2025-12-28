@@ -4,6 +4,103 @@ import os
 from agents.briefing_agent import BriefingAgent
 from core.audio import synthesize_podcast
 
+# Consolidated CSS for Perfect Header Alignment
+st.markdown("""
+    <style>
+    /* 1. Nuke all default Streamlit headers and reclaim top-of-page pixels */
+    header { visibility: hidden; height: 0px !important; }
+    [data-testid="stHeader"] { height: 0px !important; }
+    
+    /* 2. Absolute reset of the main container */
+    .block-container {
+        padding-top: 0rem !important;
+        padding-bottom: 0rem !important;
+        margin-top: 0rem !important;
+    }
+
+    /* 3. SYNCED PADDING: This is the critical alignment part */
+    /* We use exactly 50px for both to ensure they start at the same point */
+    
+    [data-testid="stSidebarContent"] h1 {
+        padding-top: 0px !important;
+    }
+
+    /* Target the main heading and force its padding to match the sidebar */
+    h1 {
+        padding-top: 50px !important; 
+        margin-top: 0px !important;
+        line-height: 1 !important; /* Forces the text to stick to the top of its box */
+    }
+
+    /* 4. Align the sub-caption directly under the title */
+    .stCaption {
+        margin-top: -10px !important;
+        padding-top: 0px !important;
+    }
+
+    /* 5. Metrics Row padding adjustment */
+    [data-testid="column"] {
+        padding-top: 10px !important;
+    }
+    
+    /* 6. Executive Card Styling */
+    .stContainer {
+        border: 1px solid #464b5d;
+        padding: 20px;
+        border-radius: 12px;
+        background-color: rgba(70, 75, 93, 0.05);
+    }
+
+    /* 7. Targeting Box Styling */
+    div[data-testid="stAlert"] {
+        background-color: rgba(70, 75, 93, 0.15) !important;
+        border: 1px solid #464b5d !important;
+        color: #e0e0e0 !important;
+        border-radius: 8px !important;
+    }
+
+    /* 8. Primary Button Styling */
+    div.stButton > button {
+        width: 100%;
+        background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+        color: white;
+        border: 1px solid #4b5563;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        font-size: 16px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    div.stButton > button:hover {
+        background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+        border-color: #9ca3af;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    
+    /* 9. Footer Styling */
+    .footer {
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        background-color: transparent;
+        color: #717688;
+        text-align: center;
+        padding: 10px;
+        font-size: 13px;
+        font-family: sans-serif;
+        pointer-events: none;
+    }
+
+    /* 10. Fix Dropdown Cursor & Caret */
+    [data-baseweb="select"] > div, [data-baseweb="select"] input {
+        cursor: pointer !important;
+        caret-color: transparent !important; /* Hides the blinking text cursor */
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
 # Ensure local directories exist
 if not os.path.exists("data"): 
     os.makedirs("data")
@@ -62,8 +159,15 @@ with st.sidebar:
     run_btn = st.button("🚀 Generate Audit", use_container_width=True)
 
 # --- Main Dashboard ---
-st.title("🎙️ Intel-Stream: Executive AI Briefing")
+st.title("Executive AI Briefing")
 st.caption("Autonomous Multimodal Intelligence for Competitive Auditing")
+
+if not run_btn:
+    st.markdown("""
+    <div style='text-align: center; margin-top: 50px; color: #606575;'>
+        <h3 style='font-weight: 400;'>👈 Select a scenario from the sidebar and click <b>Generate Audit</b> to begin.</h3>
+    </div>
+    """, unsafe_allow_html=True)
 
 if run_btn and input_file:
     # 1. Reset Session State
@@ -138,5 +242,8 @@ elif st.session_state.analysis_result:
         st.markdown("### 🎙️ Executive Audio Briefing")
         st.audio(st.session_state.audio_path)
 
-st.divider()
-st.caption("Applied AI Architecture | Kasparro Submission v1.0")
+st.markdown("""
+<div class="footer">
+    Applied AI Architecture | Kasparro Submission v1.0
+</div>
+""", unsafe_allow_html=True)
